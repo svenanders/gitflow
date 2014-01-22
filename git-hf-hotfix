@@ -155,9 +155,10 @@ parse_remote_name() {
 
 require_version_arg() {
 	if [ "$VERSION" == "" ]; then
-		warn "Missing argument <version>"
-		usage
-		exit 1
+		#warn "Missing argument <version>"
+		#usage
+		#exit 1
+		create_temp_version_hash
 	fi
 }
 
@@ -188,6 +189,62 @@ use_current_hotfix_branch_name() {
 		exit 1
 	fi
 }
+
+# custom stuff
+
+
+create_temp_version_hash() {
+        if [ "$VERSION" == "" ]; then
+           VERSION=`date +%s | shasum | base64 | head -c 6 ; echo`
+           REPODIR=`git rev-parse --show-toplevel`
+           #also update branch
+           BRANCH=$PREFIX$VERSION
+           echo "creating version arg: $VERSION"
+           echo $VERSION > $REPODIR/version_latest.txt
+        fi
+}
+
+update_version_hash() {
+        #get current version hash
+        get_version_hash
+        if [ "$LATESTVERSION" == "" ]; then
+           die "fatal: cannot find latest version number"
+        fi
+        #bumping the hotfix
+        set_version_hash
+}
+
+get_version_hash() {
+        #REPONAME=`git rev-parse --show-toplevel |grep -oE "[^/]+$"| head -n 1`
+        REPODIR=`git rev-parse --show-toplevel`
+        if [ ! -f $REPODIR/version_latest.txt ]; then
+		    LATESTVERSION=`date +%s | sha256sum | base64 | head -c 6 ; echo`
+		else
+		LATESTVERSION=`cat $REPODIR/version_latest.txt`
+		VERSION=`cat $REPODIR/version_latest.txt`
+		fi
+}
+
+set_version_hash() {
+
+        VERSION=`echo $LATESTVERSION | awk -F. '/[0-9]+\./{$2+=1;OFS=".";print}'`
+        #update last num to 0
+        VERSION=`echo $VERSION | awk -F. '/[0-9]+\./{$NF=0;OFS=".";print}'`
+        #now, set and ensure that it worked
+        REPODIR=`git rev-parse --show-toplevel`
+        echo $VERSION > $REPODIR/version_latest.txt
+        #ensure that it happend
+        get_version_hash
+        if [ "$VERSION" != "$LATESTVERSION" ]; then
+           die "Could not ensure version numbering."
+        fi
+}
+
+
+
+# done custom stuff
+
+
 
 cmd_start() {
 	DEFINE_boolean fetch true "fetch from $ORIGIN before creating the new branch" F
@@ -240,7 +297,11 @@ cmd_finish() {
 	DEFINE_boolean notag false "don't tag this release" n
 	DEFINE_boolean nobackmerge false "don't back-merge $MASTER_BRANCH to be a parent of $DEVELOP_BRANCH (using tag if applicable)" b	parse_args "$@"
 	parse_args "$@"
-	require_version_arg
+	
+	#require_version_arg
+	#keep current name if we are in correct place
+    name_or_current
+	get_version_hash
 
 	# handle flags that imply other flags
 	if [ "$FLAGS_signingkey" != "" ]; then
@@ -265,6 +326,7 @@ cmd_finish() {
 	if has "$ORIGIN/$DEVELOP_BRANCH" $(git_remote_branches); then
 		require_branches_equal "$DEVELOP_BRANCH" "$ORIGIN/$DEVELOP_BRANCH"
 	fi
+
 
 	# try to merge into master
 	# in case a previous attempt to finish this release branch has failed,
@@ -331,6 +393,7 @@ cmd_finish() {
 		fi
 
 		# delete the local branch afterwards
+		git checkout develop
 		git branch -d "$BRANCH"
 	fi
 
