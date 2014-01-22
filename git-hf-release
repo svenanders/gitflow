@@ -219,14 +219,9 @@ set_version_hash() {
         HASH=`echo $LATESTHASH | awk -F. '/[0-9]+\./{$2+=1;OFS=".";print}'`
         #update last num to 0
         HASH=`echo $HASH | awk -F. '/[0-9]+\./{$NF=0;OFS=".";print}'`
-        #now, set and ensure that it worked
         REPODIR=`git rev-parse --show-toplevel`
         echo $HASH > $REPODIR/version_hash.txt
-        #ensure that it happend
-        get_version_hash
-        if [ "$VERSION" != "$LATESTHASH" ]; then
-           die "Could not ensure version numbering."
-        fi
+        
 }
 
 
