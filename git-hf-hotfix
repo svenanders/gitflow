@@ -190,6 +190,7 @@ use_current_hotfix_branch_name() {
 	fi
 }
 
+
 # custom stuff
 
 
@@ -256,23 +257,7 @@ set_version_hash() {
         fi
 }
 
-get_version_number() {
-        REPODIR=`git rev-parse --show-toplevel`
-        if [ -e $REPODIR/version_latest.txt ]; then
-        	VERSION=`cat $REPODIR/version_latest.txt`
-        fi
-        
-        if [ -z "$VERSION" ]; then
-        	REPOURL=`git config --get remote.origin.url`
-			VERSION=`git ls-remote --tags $REPOURL | tail -n 2|head -n 1|grep -oE "[^/tags/v]+$"`
-			if [ -z "$VERSION" ]
-				then
-					VERSION="0.0.1"
-				fi
-			echo $VERSION > $REPODIR/version_latest.txt
-		fi		
-		
-}
+
 
 set_version_number() {
 		REPODIR=`git rev-parse --show-toplevel`
@@ -292,7 +277,6 @@ set_version_number() {
 
 		VERSION=`increment_version $LATESTVERSION`
 		echo $VERSION > $REPODIR/version_latest.txt
-		echo "new v is: $VERSION"
 }
 
 # done custom stuff

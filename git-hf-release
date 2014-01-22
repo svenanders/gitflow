@@ -249,7 +249,6 @@ set_version_number() {
 
 		VERSION=`increment_version $LATESTVERSION`
 		echo $VERSION > $REPODIR/version_latest.txt
-		echo "new v is: $VERSION"
 }
 
 # done custom stuff
