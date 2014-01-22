@@ -173,6 +173,9 @@ cmd_push() {
     fi
     local result=$?
 
+    set_version_number
+
+
     # what happened?
     echo
     echo "Summary of actions:"
