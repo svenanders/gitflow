@@ -173,13 +173,12 @@ cmd_push() {
     fi
     local result=$?
 
-    set_version_number
-
+    #set_version_number
 
     # what happened?
     echo
     echo "Summary of actions:"
-    echo "- Version number was bumped to $VERSION"
+    #echo "- Version number was bumped to $VERSION"
 
     if [[ $result -eq 1 ]] ; then
         echo "- A new remote branch '$ORIGIN/$BRANCH' was created"
