@@ -191,7 +191,7 @@ get_version_hash() {
         #REPONAME=`git rev-parse --show-toplevel |grep -oE "[^/]+$"| head -n 1`
         REPODIR=`git rev-parse --show-toplevel`
         if [ ! -f $REPODIR/version_latest.txt ]; then
-		    LATESTHASH=`date +%s | shasm | base64 | head -c 6 ; echo`
+		    LATESTHASH=`date +%s | shasum | base64 | head -c 6 ; echo`
 		else
 		HASH=`cat $REPODIR/version_hash.txt`
 		fi
