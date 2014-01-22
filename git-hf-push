@@ -66,8 +66,6 @@ parse_args() {
 
 
 # custom stuff
-
-
 create_temp_version_hash() {
         if [ "$VERSION" == "" ]; then
            HASH=`date +%s | shasum | base64 | head -c 6 ; echo`
