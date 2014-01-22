@@ -178,6 +178,8 @@ cmd_push() {
     # what happened?
     echo
     echo "Summary of actions:"
+    echo "- Version number was bumped to $VERSION"
+
     if [[ $result -eq 1 ]] ; then
         echo "- A new remote branch '$ORIGIN/$BRANCH' was created"
         echo "- The local branch '$BRANCH' was configured to track the remote branch"
@@ -188,7 +190,6 @@ cmd_push() {
     else
         echo "- No action taken, '$ORIGIN/$BRANCH' already up-to-date"
     fi
-    echo "- Version number was bumped to $VERSION"
 
     # all done
 }
