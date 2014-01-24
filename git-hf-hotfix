@@ -270,7 +270,7 @@ set_version_number() {
 			LATESTVERSION=`git ls-remote --tags $REPOURL | tail -n 2|head -n 1|grep -oE "[^/tags/v]+$"`
 			if [ -z "$VERSION" ]
 				then
-					LATESTVERSION="0.0.1"
+					LATESTVERSION="0.0.0"
 				fi
 			echo $LATESTVERSION > $REPODIR/version_latest.txt
 		fi	
@@ -320,7 +320,8 @@ cmd_start() {
 	echo "- Start committing your hot fixes"
 	echo "- When done, run:"
 	echo
-	echo "     git hf hotfix finish '$HASH'"
+	#echo "     git hf hotfix finish '$HASH'"
+	echo "     git hf hotfix finish "
 	echo
 }
 
