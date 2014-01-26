@@ -227,7 +227,7 @@ set_version_number() {
         
         if [ -z "$LATESTVERSION" ]; then
         	REPOURL=`git config --get remote.origin.url`
-			LATESTVERSION=`git ls-remote --tags $REPOURL | tail -n 2|head -n 1|grep -oE "[^/tags/]+$"`
+			LATESTVERSION=`git for-each-ref --format="%(refname)" --sort=-taggerdate --count=1 refs/tags|grep -oE "[^/tags/]+$"`
 			if [ -z "$LATESTVERSION" ]
 				then
 					LATESTVERSION="0.0.0"
