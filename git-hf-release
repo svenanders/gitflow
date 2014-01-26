@@ -229,7 +229,14 @@ remove_version_files() {
 }
 
 
-
+get_version_number() {
+	REPODIR=`git rev-parse --show-toplevel`
+        if [ -e $REPODIR/.version ]; then
+        	VERSION=`cat $REPODIR/.version`
+        else 
+        	die "Couldn't find latest version"
+        fi
+}
 
 set_version_number() {
 		REPODIR=`git rev-parse --show-toplevel`
@@ -291,11 +298,15 @@ cmd_start() {
 	# push it back up to remote repo
 	hubflow_push_latest_changes_to_origin
 
+	set_version_number
+
 	echo
 	echo "Summary of actions:"
 	echo "- A new branch '$BRANCH' was created, based on '$BASE'"
 	echo "- The branch '$BRANCH' has been pushed up to '$ORIGIN/$BRANCH'"
 	echo "- You are now on branch '$BRANCH'"
+	echo "- Version: $VERSION "
+	echo "edit .version now if you want to up the version number"
 	echo
 	echo "Follow-up actions:"
 	echo "- Start committing last-minute fixes in preparing your release"
@@ -320,7 +331,7 @@ cmd_finish() {
 	#keep current name if we are in correct place
     name_or_current
 	get_version_hash
-	set_version_number
+	get_version_number
 
 	# handle flags that imply other flags
 	if [ "$FLAGS_signingkey" != "" ]; then
