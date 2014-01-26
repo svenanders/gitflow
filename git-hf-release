@@ -132,12 +132,7 @@ parse_args() {
 }
 
 require_version_arg() {
-	if [ "$VERSION" = "" ]; then
-		#warn "Missing argument <version>"
-		#usage
-		#exit 1
 		create_temp_version_hash
-	fi
 }
 
 require_base_is_on_develop() {
@@ -167,14 +162,12 @@ require_no_existing_release_branches() {
 
 
 create_temp_version_hash() {
-        if [ "$VERSION" == "" ]; then
-           HASH=`date +%s | shasum | base64 | head -c 6 ; echo`
-           REPODIR=`git rev-parse --show-toplevel`
-           #also update branch
-           BRANCH=$PREFIX$HASH
-           echo "creating version arg: $HASH"
-           echo $HASH > $REPODIR/.hash
-        fi
+       HASH=`date +%s | shasum | base64 | head -c 6 ; echo`
+       REPODIR=`git rev-parse --show-toplevel`
+       #also update branch
+       BRANCH=$PREFIX$HASH
+       echo "creating version arg: $HASH"
+       echo $HASH > $REPODIR/.vhash
 }
 
 update_version_hash() {
@@ -193,7 +186,7 @@ get_version_hash() {
         if [ ! -f $REPODIR/.version ]; then
 		    LATESTHASH=`date +%s | shasum | base64 | head -c 6 ; echo`
 		else
-		HASH=`cat $REPODIR/.hash`
+		HASH=`cat $REPODIR/.vhash`
 		fi
 }
 
@@ -220,7 +213,7 @@ set_version_hash() {
         #update last num to 0
         HASH=`echo $HASH | awk -F. '/[0-9]+\./{$NF=0;OFS=".";print}'`
         REPODIR=`git rev-parse --show-toplevel`
-        echo $HASH > $REPODIR/.hash
+        echo $HASH > $REPODIR/.vhash
         
 }
 
@@ -234,8 +227,8 @@ set_version_number() {
         
         if [ -z "$LATESTVERSION" ]; then
         	REPOURL=`git config --get remote.origin.url`
-			LATESTVERSION=`git ls-remote --tags $REPOURL | tail -n 2|head -n 1|grep -oE "[^/tags/v]+$"`
-			if [ -z "$VERSION" ]
+			LATESTVERSION=`git ls-remote --tags $REPOURL | tail -n 2|head -n 1|grep -oE "[^/tags/]+$"`
+			if [ -z "$LATESTVERSION" ]
 				then
 					LATESTVERSION="0.0.0"
 				fi
@@ -293,11 +286,9 @@ cmd_start() {
 	echo "- You are now on branch '$BRANCH'"
 	echo
 	echo "Follow-up actions:"
-	echo "- Bump the version number now!"
 	echo "- Start committing last-minute fixes in preparing your release"
 	echo "- When done, run:"
 	echo
-	#echo "     git hf release finish '$HASH'"
 	echo "     git hf release finish "
 	echo
 }

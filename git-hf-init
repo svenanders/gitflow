@@ -77,6 +77,10 @@ cmd_default() {
         warn "Using default branch names."
     fi
 
+    # add .vhash and .version to .gitignore
+	REPODIR=`git rev-parse --show-toplevel`
+	echo ".vhash\n.version" >> $REPODIR/.gitignore
+
 	# add a master branch if no such branch exists yet
 	local master_branch
 	if hubflow_has_master_configured && ! flag force; then
