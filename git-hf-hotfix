@@ -251,7 +251,16 @@ set_version_hash() {
         
 }
 
+remove_version_files() {
+	REPODIR=`git rev-parse --show-toplevel`
+	if [ -e $REPODIR/.version ]; then
+	rm $REPODIR/.version
+	fi
+	if [ -e $REPODIR/.vhash ]; then
+	rm $REPODIR/.vhash
+	fi
 
+}
 
 set_version_number() {
 		REPODIR=`git rev-parse --show-toplevel`
@@ -460,6 +469,8 @@ cmd_finish() {
 		echo "- '$DEVELOP_BRANCH', '$MASTER_BRANCH' and tags have been pushed to '$ORIGIN'"
 	fi
 	echo
+
+	remove_version_files
 }
 
 cmd_cancel() {
@@ -552,6 +563,7 @@ cmd_cancel() {
 	fi
 
 	echo
+	remove_version_files
 }
 
 cmd_pull() {

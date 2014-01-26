@@ -217,6 +217,18 @@ set_version_hash() {
         
 }
 
+remove_version_files() {
+	REPODIR=`git rev-parse --show-toplevel`
+	if [ -e $REPODIR/.version ]; then
+	rm $REPODIR/.version
+	fi
+	if [ -e $REPODIR/.vhash ]; then
+	rm $REPODIR/.vhash
+	fi
+
+}
+
+
 
 
 set_version_number() {
@@ -454,6 +466,7 @@ cmd_finish() {
 	echo
 	#try to bump version number
     update_version_hash
+    remove_version_files
 }
 
 cmd_cancel() {
@@ -548,6 +561,7 @@ cmd_cancel() {
 		echo "- '$DEVELOP_BRANCH' has been pushed to '$ORIGIN'"
 	fi
 	echo
+	remove_version_files
 }
 
 cmd_publish() {
