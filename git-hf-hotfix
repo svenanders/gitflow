@@ -191,18 +191,17 @@ use_current_hotfix_branch_name() {
 }
 
 
+
 # custom stuff
 
 
 create_temp_version_hash() {
-        if [ "$VERSION" == "" ]; then
-           HASH=`date +%s | shasum | base64 | head -c 6 ; echo`
-           REPODIR=`git rev-parse --show-toplevel`
-           #also update branch
-           BRANCH=$PREFIX$HASH
-           echo "creating version arg: $HASH"
-           echo $HASH > $REPODIR/version_hash.txt
-        fi
+       HASH=`date +%s | shasum | base64 | head -c 6 ; echo`
+       REPODIR=`git rev-parse --show-toplevel`
+       #also update branch
+       BRANCH=$PREFIX$HASH
+       echo "creating version arg: $HASH"
+       echo $HASH > $REPODIR/.vhash
 }
 
 update_version_hash() {
@@ -218,10 +217,10 @@ update_version_hash() {
 get_version_hash() {
         #REPONAME=`git rev-parse --show-toplevel |grep -oE "[^/]+$"| head -n 1`
         REPODIR=`git rev-parse --show-toplevel`
-        if [ ! -f $REPODIR/version_latest.txt ]; then
+        if [ ! -f $REPODIR/.version ]; then
 		    LATESTHASH=`date +%s | shasum | base64 | head -c 6 ; echo`
 		else
-		HASH=`cat $REPODIR/version_hash.txt`
+		HASH=`cat $REPODIR/.vhash`
 		fi
 }
 
@@ -247,39 +246,37 @@ set_version_hash() {
         HASH=`echo $LATESTHASH | awk -F. '/[0-9]+\./{$2+=1;OFS=".";print}'`
         #update last num to 0
         HASH=`echo $HASH | awk -F. '/[0-9]+\./{$NF=0;OFS=".";print}'`
-        #now, set and ensure that it worked
         REPODIR=`git rev-parse --show-toplevel`
-        echo $HASH > $REPODIR/version_hash.txt
-        #ensure that it happend
-        get_version_hash
-        if [ "$VERSION" != "$LATESTHASH" ]; then
-           die "Could not ensure version numbering."
-        fi
+        echo $HASH > $REPODIR/.vhash
+        
 }
 
 
 
 set_version_number() {
 		REPODIR=`git rev-parse --show-toplevel`
-        if [ -e $REPODIR/version_latest.txt ]; then
-        	LATESTVERSION=`cat $REPODIR/version_latest.txt`
+        if [ -e $REPODIR/.version ]; then
+        	LATESTVERSION=`cat $REPODIR/.version`
         fi
         
         if [ -z "$LATESTVERSION" ]; then
         	REPOURL=`git config --get remote.origin.url`
-			LATESTVERSION=`git ls-remote --tags $REPOURL | tail -n 2|head -n 1|grep -oE "[^/tags/v]+$"`
-			if [ -z "$VERSION" ]
+			LATESTVERSION=`git ls-remote --tags $REPOURL | tail -n 2|head -n 1|grep -oE "[^/tags/]+$"`
+			if [ -z "$LATESTVERSION" ]
 				then
 					LATESTVERSION="0.0.0"
 				fi
-			echo $LATESTVERSION > $REPODIR/version_latest.txt
+			echo $LATESTVERSION > $REPODIR/.version
 		fi	
 
 		VERSION=`increment_version $LATESTVERSION`
-		echo $VERSION > $REPODIR/version_latest.txt
+		echo $VERSION > $REPODIR/.version
 }
 
 # done custom stuff
+
+
+
 
 
 
@@ -316,11 +313,9 @@ cmd_start() {
 	echo "- You are now on branch '$BRANCH'"
 	echo
 	echo "Follow-up actions:"
-	echo "- Bump the version number now!"
 	echo "- Start committing your hot fixes"
 	echo "- When done, run:"
 	echo
-	#echo "     git hf hotfix finish '$HASH'"
 	echo "     git hf hotfix finish "
 	echo
 }
