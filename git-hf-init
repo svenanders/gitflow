@@ -79,7 +79,8 @@ cmd_default() {
 
     # add .vhash and .version to .gitignore
 	REPODIR=`git rev-parse --show-toplevel`
-	echo ".vhash\n.version" >> $REPODIR/.gitignore
+	echo ".vhash" >> $REPODIR/.gitignore
+	echo ".version" >> $REPODIR/.gitignore
 
 	# add a master branch if no such branch exists yet
 	local master_branch
