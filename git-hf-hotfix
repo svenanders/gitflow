@@ -218,7 +218,7 @@ update_version_hash() {
 get_version_hash() {
         #REPONAME=`git rev-parse --show-toplevel |grep -oE "[^/]+$"| head -n 1`
         REPODIR=`git rev-parse --show-toplevel`
-        if [ ! -f $REPODIR/version_latest.txt ]; then
+        if [ ! -f $REPODIR/.version ]; then
 		    LATESTHASH=`date +%s | shasum | base64 | head -c 6 ; echo`
 		else
 		HASH=`cat $REPODIR/version_hash.txt`
@@ -261,8 +261,8 @@ set_version_hash() {
 
 set_version_number() {
 		REPODIR=`git rev-parse --show-toplevel`
-        if [ -e $REPODIR/version_latest.txt ]; then
-        	LATESTVERSION=`cat $REPODIR/version_latest.txt`
+        if [ -e $REPODIR/.version ]; then
+        	LATESTVERSION=`cat $REPODIR/.version`
         fi
         
         if [ -z "$LATESTVERSION" ]; then
@@ -272,11 +272,11 @@ set_version_number() {
 				then
 					LATESTVERSION="0.0.0"
 				fi
-			echo $LATESTVERSION > $REPODIR/version_latest.txt
+			echo $LATESTVERSION > $REPODIR/.version
 		fi	
 
 		VERSION=`increment_version $LATESTVERSION`
-		echo $VERSION > $REPODIR/version_latest.txt
+		echo $VERSION > $REPODIR/.version
 }
 
 # done custom stuff
