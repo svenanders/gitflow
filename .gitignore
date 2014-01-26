@@ -3,3 +3,5 @@ debian/*.substvars
 debian/*.debhelper.log
 debian/*/*
 .tags*
+.vhash
+.version
