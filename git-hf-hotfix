@@ -262,6 +262,15 @@ remove_version_files() {
 
 }
 
+get_version_number() {
+	REPODIR=`git rev-parse --show-toplevel`
+        if [ -e $REPODIR/.version ]; then
+        	VERSION=`cat $REPODIR/.version`
+        else 
+        	die "Couldn't find latest version"
+        fi
+}
+
 set_version_number() {
 		REPODIR=`git rev-parse --show-toplevel`
         if [ -e $REPODIR/.version ]; then
@@ -308,6 +317,7 @@ cmd_start() {
 	if has "$ORIGIN/$MASTER_BRANCH" $(git_remote_branches); then
 		require_branches_equal "$MASTER_BRANCH" "$ORIGIN/$MASTER_BRANCH"
 	fi
+	set_version_number
 
 	# create branch
 	git checkout -b "$BRANCH" "$BASE"
@@ -320,6 +330,8 @@ cmd_start() {
 	echo "- A new branch '$BRANCH' was created, based on '$BASE'"
 	echo "- The branch '$BRANCH' has been pushed up to '$ORIGIN/$BRANCH'"
 	echo "- You are now on branch '$BRANCH'"
+	echo "- Version: $VERSION (incremented by one)"
+	echo "  edit .version now if you want to further bump the version number"
 	echo
 	echo "Follow-up actions:"
 	echo "- Start committing your hot fixes"
@@ -344,7 +356,7 @@ cmd_finish() {
 	#keep current name if we are in correct place
     name_or_current
 	get_version_hash
-	set_version_number
+	get_version_number
 
 	# handle flags that imply other flags
 	if [ "$FLAGS_signingkey" != "" ]; then
