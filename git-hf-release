@@ -264,7 +264,7 @@ ensure_version_does_not_exist() {
         	RELEASEVERSION=`cat $REPODIR/.version`
         fi
         CURRENTVERSION=`git for-each-ref --format="%(refname)" --sort=-taggerdate --count=1 refs/tags|grep -oE "[^/tags/]+$"`
-		if[ "$RELEASEVERSION" == "$CURRENTVERSION" ]
+		if [ "$RELEASEVERSION" == "$CURRENTVERSION" ]
 		then
 			die "FATAL: Version number $RELEASEVERSION is already in production"
 		fi 
