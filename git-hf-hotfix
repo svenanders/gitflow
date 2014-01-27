@@ -192,6 +192,7 @@ use_current_hotfix_branch_name() {
 
 
 
+
 # custom stuff
 
 
@@ -207,7 +208,7 @@ create_temp_version_hash() {
 update_version_hash() {
         #get current version hash
         get_version_hash
-        if [ "$LATESTVERSION" == "" ]; then
+        if [ "$HASH" == "" ]; then
            die "fatal: cannot find latest version number"
         fi
         #bumping the hotfix
@@ -218,7 +219,7 @@ get_version_hash() {
         #REPONAME=`git rev-parse --show-toplevel |grep -oE "[^/]+$"| head -n 1`
         REPODIR=`git rev-parse --show-toplevel`
         if [ ! -f $REPODIR/.version ]; then
-		    LATESTHASH=`date +%s | shasum | base64 | head -c 6 ; echo`
+		    HASH=`date +%s | shasum | base64 | head -c 6 ; echo`
 		else
 		HASH=`cat $REPODIR/.vhash`
 		fi
@@ -243,9 +244,9 @@ increment_version ()
 
 
 set_version_hash() {
-        HASH=`echo $LATESTHASH | awk -F. '/[0-9]+\./{$2+=1;OFS=".";print}'`
-        #update last num to 0
-        HASH=`echo $HASH | awk -F. '/[0-9]+\./{$NF=0;OFS=".";print}'`
+        #HASH=`echo $HASH | awk -F. '/[0-9]+\./{$NF=0;OFS=".";print}'`
+        HASH=`date +%s | shasum | base64 | head -c 6 ; echo`
+	
         REPODIR=`git rev-parse --show-toplevel`
         echo $HASH > $REPODIR/.vhash
         
@@ -261,6 +262,7 @@ remove_version_files() {
 	fi
 
 }
+
 
 get_version_number() {
 	REPODIR=`git rev-parse --show-toplevel`
@@ -290,6 +292,19 @@ set_version_number() {
 		VERSION=`increment_version $LATESTVERSION`
 		echo $VERSION > $REPODIR/.version
 }
+
+ensure_version_does_not_exist() {
+		REPODIR=`git rev-parse --show-toplevel`
+        if [ -e $REPODIR/.version ]; then
+        	RELEASEVERSION=`cat $REPODIR/.version`
+        fi
+        CURRENTVERSION=`git for-each-ref --format="%(refname)" --sort=-taggerdate --count=1 refs/tags|grep -oE "[^/tags/]+$"`
+		if[ "$RELEASEVERSION" == "$CURRENTVERSION" ]
+		then
+			die "FATAL: Version number $RELEASEVERSION is already in production"
+		fi 
+}
+
 
 # done custom stuff
 
@@ -351,6 +366,8 @@ cmd_finish() {
 	DEFINE_boolean notag false "don't tag this release" n
 	DEFINE_boolean nobackmerge false "don't back-merge $MASTER_BRANCH to be a parent of $DEVELOP_BRANCH (using tag if applicable)" b	parse_args "$@"
 	parse_args "$@"
+
+	ensure_version_does_not_exist
 	
 	#require_version_arg
 	#keep current name if we are in correct place
