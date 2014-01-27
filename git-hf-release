@@ -318,7 +318,7 @@ cmd_start() {
 	echo "- A new branch '$BRANCH' was created, based on '$BASE'"
 	echo "- The branch '$BRANCH' has been pushed up to '$ORIGIN/$BRANCH'"
 	echo "- You are now on branch '$BRANCH'"
-	echo "- Version: $VERSION (incremented by one)"
+	echo "- Version: $VERSION (incremented by one from previous)"
 	echo "  edit .version now if you want to further bump the version number"
 	echo
 	echo "Follow-up actions:"
